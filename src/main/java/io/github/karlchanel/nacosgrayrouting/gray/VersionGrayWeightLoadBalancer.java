@@ -24,6 +24,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
     ObjectProvider<ServiceInstanceListSupplier> serviceInstanceListSupplierProvider;
     String serviceId;
     AtomicInteger position;
+
     public VersionGrayWeightLoadBalancer() {
     }
 
@@ -47,6 +48,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
         HttpHeaders headers = requestData.getHeaders();
         return supplier.get(request).next().map(list -> processInstanceResponse((List<ServiceInstance>) list, headers));
     }
+
     //思路是没有带version标签的instance为base版本，当请求没有携带version header时，返回base版本
     //当请求有version header时，返回version header对应的版本，如果没有对应的版本的instance存在，则返回base版本
     //无论那种选择，都会在灰度选择后，再从符合的instance中进行一次权重选择，实现先进行灰度选择，在进行权重选择
@@ -58,39 +60,32 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
 
             String reqVersion = headers.getFirst("version");
             if (Objects.isNull(reqVersion)) {
-                List<ServiceInstance> versiond_without_header = instances.stream()
+                //请求中没有携带version header
+                List<ServiceInstance> base = instances.stream()
                         .filter(instance -> {
                             String s = instance.getMetadata().get("version");
-                            return !Objects.isNull(s);
+                            return Objects.isNull(s);
                         })
-                        .collect(Collectors.toList());
-                HashSet<ServiceInstance> all = new HashSet<>(instances);
-                HashSet<ServiceInstance> versionset = new HashSet<>(versiond_without_header);
-                all.removeAll(versionset);
-                ArrayList<ServiceInstance> fbase = new ArrayList<>();
-                fbase.addAll(all);
-                if (!fbase.isEmpty()) {
-                    return getServiceInstanceResponseWithWeight(fbase);
+                        .toList();
+                if (!base.isEmpty()) {
+                    return getServiceInstanceResponseWithWeight(base);
                 } else {
                     return new EmptyResponse();
                 }
             } else {
-                List<ServiceInstance> versiond_with_header = instances.stream()
+                //请求中携带version header
+                //version_with_header代表请求header与instance标签匹配的集合
+                List<ServiceInstance> version_with_header = instances.stream()
                         .filter(instance -> reqVersion.equals(instance.getMetadata().get("version")))
                         .collect(Collectors.toList());
-                List<ServiceInstance> versiond_without_header_all = instances.stream()
+                List<ServiceInstance> base = instances.stream()
                         .filter(instance -> {
                             String s = instance.getMetadata().get("version");
-                            return !Objects.isNull(s);
+                            return Objects.isNull(s);
                         })
-                        .collect(Collectors.toList());
-                HashSet<ServiceInstance> serviceInstances = new HashSet<>(instances);
-                HashSet<ServiceInstance> filterdset = new HashSet<>(versiond_without_header_all);
-                serviceInstances.removeAll(filterdset);
-                ArrayList<ServiceInstance> base = new ArrayList<>();
-                base.addAll(serviceInstances);
-                if (!versiond_with_header.isEmpty()) {
-                    return getServiceInstanceResponseWithWeight(versiond_with_header);
+                        .toList();
+                if (!version_with_header.isEmpty()) {
+                    return getServiceInstanceResponseWithWeight(version_with_header);
                 } else {
                     if (!base.isEmpty()) {
                         return getServiceInstanceResponseWithWeight(base);
@@ -101,13 +96,14 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
             }
         }
     }
-   //根据version选择后再进行权重路由
+
+    //根据version选择后再进行权重路由
     private Response<ServiceInstance> getServiceInstanceResponseWithWeight(List<ServiceInstance> instances) {
         Map<ServiceInstance, Integer> weightMap = new HashMap<>();
         for (ServiceInstance instance : instances) {
             Map<String, String> metadata = instance.getMetadata();
             String s = metadata.get("nacos.weight");
-            double w = Double.parseDouble(s)*100;
+            double w = Double.parseDouble(s) * 100;
             int i = (int) w;
             weightMap.put(instance, i);
         }
@@ -124,6 +120,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
 
         return new DefaultResponse(serviceInstance);
     }
+
     private Response<ServiceInstance> getServiceInstanceEmptyResponse() {
         log.warn("No servers available for service: " + this.serviceId);
         return new EmptyResponse();
