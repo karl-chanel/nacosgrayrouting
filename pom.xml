@@ -13,7 +13,7 @@
     <!-- 优质的 spring/boot/data/security/cloud 框架中文文档尽在 => https://springdoc.cn -->
     <groupId>io.github.karl-chanel</groupId>
     <artifactId>nacosgrayrouting</artifactId>
-    <version>gateway-1.1.0</version>
+    <version>gateway-1.2.0</version>
     <name>nacosgrayrouting</name>
     <description>nacosgrayrouting</description>
     <properties>
