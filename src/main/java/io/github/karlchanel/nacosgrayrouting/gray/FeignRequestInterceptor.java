@@ -1,6 +1,5 @@
-package com.example.byterunh2.interceptors;
+package io.github.karlchanel.nacosgrayrouting.gray;
 
-import com.example.byterunh2.gray.GrayConstant;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,11 +9,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Objects;
 
-/**
- * @author jasper
- * @email jaspersteelxx@gmail.com
- * @create 2023-12-22 06:37
- **/
+
 @Component
 public class FeignRequestInterceptor implements RequestInterceptor {
     //    @Override
