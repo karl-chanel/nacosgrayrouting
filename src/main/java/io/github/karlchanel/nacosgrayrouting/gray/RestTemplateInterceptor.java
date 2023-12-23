@@ -11,11 +11,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.IOException;
 import java.util.Objects;
 
-/**
- * @author jasper
- * @email jaspersteelxx@gmail.com
- * @create 2023-12-24 04:32
- **/
 public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {

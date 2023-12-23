@@ -42,7 +42,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
         ServiceInstanceListSupplier supplier = (ServiceInstanceListSupplier) this.serviceInstanceListSupplierProvider.getIfAvailable(NoopServiceInstanceListSupplier::new);
         DefaultRequest req = (DefaultRequest) request;
         RequestDataContext context = (RequestDataContext) req.getContext();
-        log.warn("serviceId:{} position:{}", serviceId, position.get());
+//        log.warn("serviceId:{} position:{}", serviceId, position.get());
         RequestData requestData = context.getClientRequest();
         HttpHeaders headers = requestData.getHeaders();
         return supplier.get(request).next().map(list -> processInstanceResponse((List<ServiceInstance>) list, headers));
@@ -120,7 +120,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
             return getServiceInstanceEmptyResponse();
         }
         Map<String, String> metadata = serviceInstance.getMetadata();
-        metadata.forEach((k, v) -> log.info("metadata: {}={}", k, v));
+//        metadata.forEach((k, v) -> log.info("metadata: {}={}", k, v));
 
         return new DefaultResponse(serviceInstance);
     }
