@@ -1,10 +1,5 @@
-package com.example.byterunh2.gray;
+package io.github.karlchanel.nacosgrayrouting.gray;
 
-/**
- * @author jasper
- * @email jaspersteelxx@gmail.com
- * @create 2023-10-30 12:54
- **/
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -21,10 +16,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-/**
- * @author cuishiying
- * @date 2021-01-22
- */
 @Slf4j
 public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoadBalancer {
 
@@ -49,7 +40,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
         ServiceInstanceListSupplier supplier = (ServiceInstanceListSupplier) this.serviceInstanceListSupplierProvider.getIfAvailable(NoopServiceInstanceListSupplier::new);
         DefaultRequest req = (DefaultRequest) request;
         RequestDataContext context = (RequestDataContext) req.getContext();
-        log.warn("serviceId:{} position:{}", serviceId, position.get());
+//        log.warn("serviceId:{} position:{}", serviceId, position.get());
         RequestData requestData = context.getClientRequest();
         HttpHeaders headers = requestData.getHeaders();
         return supplier.get(request).next().map(list -> processInstanceResponse((List<ServiceInstance>) list, headers));
@@ -127,7 +118,7 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
             return getServiceInstanceEmptyResponse();
         }
         Map<String, String> metadata = serviceInstance.getMetadata();
-        metadata.forEach((k, v) -> log.info("metadata: {}={}", k, v));
+//        metadata.forEach((k, v) -> log.info("metadata: {}={}", k, v));
 
         return new DefaultResponse(serviceInstance);
     }
@@ -136,12 +127,6 @@ public class VersionGrayWeightLoadBalancer implements ReactorServiceInstanceLoad
         return new EmptyResponse();
     }
 
-    /**
-     * 负载均衡器
-     * 参考 org.springframework.cloud.loadbalancer.core.RoundRobinLoadBalancer#getInstanceResponse
-     *
-     * @author javadaily
-     */
     private Response<ServiceInstance> processRibbonInstanceResponse(List<ServiceInstance> instances) {
         int pos = this.position.incrementAndGet() & Integer.MAX_VALUE;
         ServiceInstance instance = (ServiceInstance) instances.get(pos % instances.size());

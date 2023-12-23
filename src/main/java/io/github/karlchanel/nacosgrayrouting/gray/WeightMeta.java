@@ -1,13 +1,8 @@
-package com.example.byterunh2.gray;
+package io.github.karlchanel.nacosgrayrouting.gray;
 
 import java.util.Arrays;
 import java.util.Random;
 
-/**
- * @author jasper
- * @email jaspersteelxx@gmail.com
- * @create 2023-10-31 13:51
- **/
 public class WeightMeta<T> {
     private final Random ran = new Random();
     private final T[] nodes;
